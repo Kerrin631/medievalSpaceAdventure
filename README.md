@@ -1,4 +1,4 @@
-# medievalSpaceAdventure
+# Medieval Space Adventure
 
 Medieval Space Adventure (MSA)
 
