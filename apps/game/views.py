@@ -11,21 +11,9 @@ didDie = []
 story = {
 		'log' : log,
 		'inventory' : inventory
-	}
-startPostprivateLog = ['dummy']
-hallPostprivateLog = ['dummy']
-sphinxPostprivateLog = ['dummy']
-
-firstScroll = '******** Your Princess now belongs in my castle... Bring 2000 gold pieces to the castle North of the mountains for her return *********'
-startBanner = '******** Welcome to Medieval Space Adventure. MSA is a game of adventure, peril and cunning. You are about to embark on a journey, the likes of which few have ever imagined. In MSA the courageous adventurer discovers the secrets of his worlds mythical creatures origins. He is cast into a series of puzzles, only the most cunning are to survive. You can interact with the game environment with commands such as "look around", "use western door", "attack \'creature\'", "pick up \'item\'", "read item", etc. You dont need to use the word "the". For example you can say "pick up sword" instead of "pick up THE sword". You also dont need to capitalize and of the words in your commands or add punctuation. MSA was developed by Kerrin Arora during a rainy week in Houston, TX. It was inspired by the 1980s game, ZORK. MSA was written in Python using the Django Framework. For any comments, feel free to email me at kerrin.arora@gmail.com! *********'
-sphinxBanner = '******** To reach the end you cannot rest. You must first pass this cunning test. Tread lightly to those that dare. Beyond this door lies the Sphinx Lair. *********'
+		}
 
 
-# def hello():
-#     event.append('stuff happens')
-
-# t = Timer(3.0, hello)
-# t.start()
 
 
 def postDirector(request):
@@ -55,22 +43,23 @@ def newGame(request):
 	del log[:]
 	del didDie[:]
 	del inventory[:]
+	request.session['location'] = 'Palace Chambers'
 	return redirect('start')
 
 
 class Start(object):
-	event = []
+	# event = []
 	location = 'Palace Chambers'
+	startPostprivateLog = []
 	
 
 class StartGet(Start, View):
+	event = []
 	def get(self, request):
 		del self.event[:]
+		del self.startPostprivateLog[:]
+		del request.session['inventory'][:]
 		if ('dead' in didDie):
-			del inventory[:]
-			del startPostprivateLog[:]
-			del hallPostprivateLog[:]
-			del sphinxPostprivateLog[:]
 			self.event.append('******* YOU HAVE FAILED YOUR PRINCESS. TRY AGAIN *******')
 		self.request.session['location'] = self.location
 		self.event.append('It is a beautiful day in the Kingdom.')
@@ -79,23 +68,22 @@ class StartGet(Start, View):
 		self.event.append('BRAKOOMMMMMMMMM')
 		self.event.append('You hear a large crash up above as a winged behemoth swoops down and grabs up the princess.')
 		self.event.append('As it flies off it drops a scroll...')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
-		return render(request, 'game/index.html', story)
+		log.append(request.session['summary'])
+		return render(request, 'game/index.html', {'log' : log, 'inventory' : inventory})
 
-class StartPost(Start, View):
+class StartPost(StartGet, View):
 	def get(self, request):
-		# del self.event[:]
 		self.event.append('> ' + request.session["action"])
-		if ('Scroll') not in inventory:
+		if ('Scroll') not in request.session['inventory']:
 			scroll = False
 		else:
 			scroll = True
 
-		if ('Read scroll') not in startPostprivateLog:
+		if ('Read scroll') not in self.startPostprivateLog:
 			scrollRead = False
 		else:
 			scrollRead = True
@@ -105,18 +93,18 @@ class StartPost(Start, View):
 		elif (request.session['action'] == 'pick up scroll' and scroll == False) or (request.session['action'] == 'Pick up scroll' and scroll == False) or (request.session['action'] == 'grab the scroll' and scroll == False) or (request.session['action'] == 'Grab the scroll' and scroll == False) or (request.session['action'] == 'grab scroll' and scroll == False) or (request.session['action'] == 'Grab scroll' and scroll == False):
 			self.event.append('Picked up scroll.')
 			scroll = True
-			inventory.append('Scroll')
+			request.session['inventory'] = ['Scroll']
 		elif (request.session['action'] == 'look around') or (request.session['action'] == 'Look around'):
 			self.event.append('There is a scroll on the ground and a banner on the wall. Also the palace just got a new sun roof.')
 		elif (request.session['action'] == 'pick up banner') or (request.session['action'] == 'Pick up banner'):
 			self.event.append('You cannot pick up the banner. It is attached to the wall.')
 		elif (request.session['action'] == 'read banner') or (request.session['action'] == 'Read banner') or (request.session['action'] == 'read the banner') or (request.session['action'] == 'Read the banner') or (request.session['action'] == 'look at banner') or (request.session['action'] == 'Look at banner'):
-			self.event.append(startBanner)
+			self.event.append('******** Welcome to Medieval Space Adventure. MSA is a game of adventure, peril and cunning. You are about to embark on a journey, the likes of which few have ever imagined. In MSA the courageous adventurer discovers the secrets of his worlds mythical creatures origins. He is cast into a series of puzzles, only the most cunning are to survive. You can interact with the game environment with commands such as "look around", "use western door", "attack \'creature\'", "pick up \'item\'", "read item", etc. You dont need to use the word "the". For example you can say "pick up sword" instead of "pick up THE sword". You also dont need to capitalize and of the words in your commands or add punctuation. MSA was developed by Kerrin Arora during a rainy week in Houston, TX. It was inspired by the 1980s game, ZORK. MSA was written in Python using the Django Framework. For any comments, feel free to email me at kerrin.arora@gmail.com! *********')
 		elif (scroll == False and request.session['action'] == 'read scroll') or (scroll == False and request.session['action'] == 'Read scroll'):
 			self.event.append('You must first pick up scroll')
 		elif (scroll == True and request.session['action'] == 'read scroll') or (scroll == True and request.session['action'] == 'Read scroll'):
-			self.event.append(firstScroll)
-			startPostprivateLog.append('Read scroll')
+			self.event.append('******** Your Princess now belongs in my castle... Bring 2000 gold pieces to the castle North of the mountains for her return *********')
+			self.startPostprivateLog.append('Read scroll')
 			self.event.append('Would you like to save the Princess? Y/N')
 		elif scrollRead == True:
 			if (request.session['action'] == 'Y') or (request.session['action'] == 'y') or (request.session['action'] == 'yes') or (request.session['action'] == 'Yes'):
@@ -125,6 +113,7 @@ class StartPost(Start, View):
 				scrollRead = False
 		else:
 			self.event.append('Not Understood.')
+		print(request.session['inventory'])
 		# startPostprivateLog.append(request.session["action"])
 		return render(request, 'game/index.html', story)
 
@@ -142,11 +131,11 @@ class MountainsGet(Mountains, View):
 		self.event.append('It begins to hover above the ground as lights emit from all sides')
 		self.event.append('A strange beam shines down onto the cart of gold. The gold begins to float up toward the light.')
 		self.event.append('Do you jump in after it? Y/N')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 class MountainsPost(Mountains, View):
@@ -174,17 +163,17 @@ class ColdRoomGet(ColdRoom, View):
 		self.event.append('You awaken in a prison cell.')
 		self.event.append('Three walls are bare metal while the west wall is replaced with bars')
 		self.event.append('Just beyond the bars you see an orc sleeping with a key hanging loosly from his side.')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 class ColdRoomPost(ColdRoom, View):
 	def get(self, request):
 		self.event.append('> ' + request.session["action"])
-		if ('Bronze Key' not in inventory):
+		if ('Bronze Key' not in request.session['inventory']):
 			bronzeKey = False
 		else:
 			bronzeKey = True
@@ -197,7 +186,7 @@ class ColdRoomPost(ColdRoom, View):
 		elif (request.session['action'] == 'grab key' and bronzeKey == False) or (request.session['action'] == 'Grab key' and bronzeKey == False) or (request.session['action'] == 'reach for key' and bronzeKey == False) or (request.session['action'] == 'Reach for key' and bronzeKey == False) or (request.session['action'] == 'grab the key' and bronzeKey == False) or (request.session['action'] == 'Grab the key' and bronzeKey == False) or (request.session['action'] == 'steal the key' and bronzeKey == False) or (request.session['action'] == 'Steal the key' and bronzeKey == False) or (request.session['action'] == 'steal key' and bronzeKey == False) or (request.session['action'] == 'Steal key' and bronzeKey == False):
 			self.event.append('You slowly and quietly squeeze your arm through the bars. Your face is smushed against the cold metal as you twidle at the key. The key holder drops but you catch it just in time!')
 			self.bronzeKey = True
-			inventory.append('Bronze Key')
+			request.session['inventory'].append('Bronze Key')
 			self.event.append('Bronze Key was added to your inventory')
 		elif (request.session['action'] == 'grab key' and bronzeKey == True) or (request.session['action'] == 'Grab key' and bronzeKey == True) or (request.session['action'] == 'reach for key' and bronzeKey == True) or (request.session['action'] == 'Reach for key' and bronzeKey == True) or (request.session['action'] == 'grab the key' and bronzeKey == True) or (request.session['action'] == 'Grab the key' and bronzeKey == True):
 			self.event.append('You already have the key.')
@@ -208,38 +197,41 @@ class ColdRoomPost(ColdRoom, View):
 			self.event.append('You dont have the key.')
 		else:
 			self.event.append('Not Understood.')
+		print(request.session['inventory'])
 		return render(request, 'game/index.html', story)
 
 
 class PrisonHall(object):
 	event = []
 	location = 'Prison Hallway'
+	hallPostprivateLog = []
 
 class PrisonHallGet(PrisonHall, View):
 	def get(self, request):
 		del self.event[:]
+		del self.hallPostprivateLog[:]
 		self.request.session['location'] = self.location
 		self.event.append('You slowly creep out of your cell, making sure not to awaken the guard.')
 		self.event.append('There is a door to the west and one to the north. The Orc Guard is still asleep.')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 class PrisonHallPost(PrisonHall, View):
 	def get(self, request):
 		self.event.append('> ' + request.session["action"])
-		if ('Sword') not in inventory:
+		if ('Sword') not in request.session['inventory']:
 			armed = False
 		else:
 			armed = True
-		if ('west Opened') not in hallPostprivateLog:
+		if ('west Opened') not in self.hallPostprivateLog:
 			westOpened = False
 		else:
 			westOpened = True
-		if ('orcDead') not in hallPostprivateLog:
+		if ('orcDead') not in self.hallPostprivateLog:
 			OrcDead = False
 		else:
 			OrcDead = True
@@ -249,11 +241,11 @@ class PrisonHallPost(PrisonHall, View):
 			self.event.append('Please specify which door.')
 		elif (armed == False and request.session['action'] == 'open west door') or (armed == False and request.session['action'] == 'Open west door') or (armed == False and request.session['action'] == 'use west door') or (armed == False and request.session['action'] == 'Use west door') or (armed == False and request.session['action'] == 'west door') or (armed == False and request.session['action'] == 'West door') or (armed == False and request.session['action'] == 'open western door') or (armed == False and request.session['action'] == 'Open western door') or (armed == False and request.session['action'] == 'use western door') or (armed == False and request.session['action'] == 'Use western door') or (armed == False and request.session['action'] == 'western door') or (armed == False and request.session['action'] == 'Western door'):
 			self.event.append('You slowly open the western door, revealing a closet with your sword lying there.')
-			hallPostprivateLog.append('west Opened')
+			self.hallPostprivateLog.append('west Opened')
 			westOpened = True
 		elif (armed == True and request.session['action'] == 'open west door') or (armed == True and request.session['action'] == 'Open west door') or (armed == True and request.session['action'] == 'use west door') or (armed == True and request.session['action'] == 'Use west door') or (armed == True and request.session['action'] == 'west door') or (armed == True and request.session['action'] == 'West door') or (armed == True and request.session['action'] == 'open western door') or (armed == True and request.session['action'] == 'Open western door') or (armed == True and request.session['action'] == 'use western door') or (armed == True and request.session['action'] == 'Use western door') or (armed == True and request.session['action'] == 'western door') or (armed == True and request.session['action'] == 'Western door'):
 			self.event.append('You slowly open the western door, There is nothing in here')
-			hallPostprivateLog.append('west Opened')
+			self.hallPostprivateLog.append('west Opened')
 			westOpened = True
 			# stuff
 		elif (OrcDead == False and request.session['action'] == 'open north door') or (OrcDead == False and request.session['action'] == 'Open north door') or (OrcDead == False and request.session['action'] == 'use north door') or (OrcDead == False and request.session['action'] == 'Use north door') or (OrcDead == False and request.session['action'] == 'north door') or (OrcDead == False and request.session['action'] == 'north Door') or (OrcDead == False and request.session['action'] == 'open northern door') or (OrcDead == False and request.session['action'] == 'Open northern door') or (OrcDead == False and request.session['action'] == 'use northern door') or (OrcDead == False and request.session['action'] == 'Use northern door') or (OrcDead == False and request.session['action'] == 'Northern door') or (OrcDead == False and request.session['action'] == 'northern Door'):
@@ -269,7 +261,7 @@ class PrisonHallPost(PrisonHall, View):
 		elif (armed == True and request.session['action'] == 'attack guard') or (armed == True and request.session['action'] == 'Attack guard') or (armed == True and request.session['action'] == 'kill guard') or (armed == True and request.session['action'] == 'Kill guard') or (armed == True and request.session['action'] == 'hit guard') or (armed == True and request.session['action'] == 'Hit guard') or (armed == True and request.session['action'] == 'attack orc') or (armed == True and request.session['action'] == 'Attack orc') or (armed == True and request.session['action'] == 'kill orc') or (armed == True and request.session['action'] == 'Kill orc') or (armed == True and request.session['action'] == 'hit orc') or (armed == True and request.session['action'] == 'Hit orc'):
 			self.event.append('You expertly slash at the sleeping Orc\'s chest. Blood starts to curdle on the sides of his mouth as his eyes dart around scanning for anything that can help.')
 			self.event.append('His body goes limp as his eyes glaze over.')
-			hallPostprivateLog.append('orcDead')
+			self.hallPostprivateLog.append('orcDead')
 		elif (armed == False and request.session['action'] == 'attack guard') or (armed == False and request.session['action'] == 'Attack guard') or (armed == False and request.session['action'] == 'kill guard') or (armed == False and request.session['action'] == 'Kill guard') or (armed == False and request.session['action'] == 'hit guard') or (armed == False and request.session['action'] == 'Hit guard') or (armed == False and request.session['action'] == 'attack orc') or (armed == False and request.session['action'] == 'Attack orc') or (armed == False and request.session['action'] == 'kill orc') or (armed == False and request.session['action'] == 'Kill orc') or (armed == False and request.session['action'] == 'hit orc') or (armed == False and request.session['action'] == 'Hit orc'):
 			self.event.append('Not having any weapon doesnt deter you as you run up and punch the sleeping Orc with all your might.')
 			self.event.append('The Orc falls backward out of his seat.')
@@ -279,7 +271,7 @@ class PrisonHallPost(PrisonHall, View):
 			return redirect('start')
 			# enter DEAD event
 		elif (westOpened == True and armed == False and request.session['action'] == 'take sword') or (westOpened == True and armed == False and request.session['action'] == 'Take sword') or (westOpened == True and armed == False and request.session['action'] == 'grab sword') or (westOpened == True and armed == False and request.session['action'] == 'Grab sword') or (westOpened == True and armed == False and request.session['action'] == 'pick up sword') or (westOpened == True and armed == False and request.session['action'] == 'Pick up sword'):
-			inventory.append('Sword')
+			request.session['inventory'].append('Sword')
 			self.event.append('Sword has been added to your inventory')
 		elif (westOpened == False and request.session['action'] == 'take sword') or (westOpened == False and request.session['action'] == 'Take sword') or (westOpened == False and request.session['action'] == 'grab sword') or (westOpened == False and request.session['action'] == 'Grab sword') or (westOpened == False and request.session['action'] == 'pick up sword') or (westOpened == False and request.session['action'] == 'Pick up sword'):
 			self.event.append('There are no weapons around.')
@@ -300,24 +292,24 @@ class OpenRoomGet(OpenRoom, View):
 		self.event.append('You enter a large dark room. light is shining down from magical orbs on the ceiling')
 		self.event.append('There is a door on the northern wall as well as the eastern wall.')
 		self.event.append('The eastern door has a banner beside it.')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 class OpenRoomPost(OpenRoom, View):
 	def get(self, request):
 		self.event.append('> ' + request.session["action"])
-		if 'Copper Key' not in inventory:
+		if 'Copper Key' not in request.session['inventory']:
 			CopperKey = False
 		else:
 			CopperKey = True
 		if (request.session['action'] == 'look around') or (request.session['action'] == 'Look around'):
 			self.event.append('There is a door on the northern wall as well as the eastern wall. There is a banner near the eastern door.')
 		elif (request.session['action'] == 'read banner') or (request.session['action'] == 'Read banner') or (request.session['action'] == 'look at banner') or (request.session['action'] == 'Look at banner') or (request.session['action'] == 'read the banner') or (request.session['action'] == 'Read the banner'):
-			self.event.append(sphinxBanner)
+			self.event.append('******** To reach the end you cannot rest. You must first pass this cunning test. Tread lightly to those that dare. Beyond this door lies the Sphinx Lair. *********')
 		elif (request.session['action'] == 'open door') or (request.session['action'] == 'Open door') or (request.session['action'] == 'use door') or (request.session['action'] == 'Use door') or (request.session['action'] == 'door') or (request.session['action'] == 'Door'):
 			self.event.append('Please specify which door.')
 		elif (request.session['action'] == 'open east door') or (request.session['action'] == 'Open east door') or (request.session['action'] == 'use east door') or (request.session['action'] == 'Use east door') or (request.session['action'] == 'east door') or (request.session['action'] == 'East door') or (request.session['action'] == 'open eastern door') or (request.session['action'] == 'Open eastern door') or (request.session['action'] == 'use eastern door') or (request.session['action'] == 'Use eastern door') or (request.session['action'] == 'eastern door') or (request.session['action'] == 'Eastern door'):
@@ -336,17 +328,19 @@ class SphinxLair(object):
 	event = []
 	location = 'Sphinx Lair'
 	attempts = []
+	sphinxPostprivateLog = []
 
 class SphinxLairGet(SphinxLair, View):
 	def get(self, request):
 		self.request.session['location'] = self.location
 		del self.event[:]
-		if ('Copper Key' in inventory):
+		del self.sphinxPostprivateLog[:]
+		if ('Copper Key' in request.session['inventory']):
 			self.event.append('You enter a small room')
 			self.event.append('The Sphinx has gone to sleep. His purring is unnerving.')
 			self.event.append('There is a door on the eastern wall with nothing in it.')
 			self.event.append('There is also the door you walked through on the western wall.')
-			sphinxPostprivateLog.append('Copper')
+			self.sphinxPostprivateLog.append('Copper')
 		else:
 			self.event.append('You enter a small room.')
 			self.event.append('There is a creature sitting in front of you, staring back.')
@@ -355,36 +349,36 @@ class SphinxLairGet(SphinxLair, View):
 			self.event.append('* Behold, I am the Sphinx, he says. In order to pass me, you must first answer these riddles, three... *')
 			self.event.append('You nod slowly in understanding.')
 			self.event.append('* #1: I live in light but die when it shines upon me. What am I?')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 class SphinxLairPost(SphinxLair, View):
 	def get(self, request):
 		self.event.append('> ' + request.session["action"])
-		if ('Copper' in sphinxPostprivateLog):
+		if ('Copper' in self.sphinxPostprivateLog):
 			if (request.session['action'] == 'look around') or (request.session['action'] == "look around"):
 				self.event.append('The Sphinx is resting near an open door with nothing in it on the eastern wall.')
 				self.event.append('The door behind you on the western wall seems to be your only option.')
-			elif ('Copper Key' in inventory and 'west' in request.session['action']) or ('Copper Key' in inventory and 'West' in request.session['action']):
+			elif ('Copper Key' in request.session['inventory'] and 'west' in request.session['action']) or ('Copper Key' in request.session['inventory'] and 'West' in request.session['action']):
 				self.event.append('You exit back towards the Open Room.')
 				return redirect('openRoom')
 			else:
 				self.event.append('There is nothing for you to interact with in this room.')
 				self.event.append('The door behind you on the western wall seems to be your only option.')
 		else:
-			if ('Shadow') not in sphinxPostprivateLog:
+			if ('Shadow') not in self.sphinxPostprivateLog:
 				questionOne = False
 			else:
 				questionOne = True
-			if ('M') not in sphinxPostprivateLog:
+			if ('M') not in self.sphinxPostprivateLog:
 				questionTwo = False
 			else:
 				questionTwo = True
-			if ('Needle') not in sphinxPostprivateLog:
+			if ('Needle') not in self.sphinxPostprivateLog:
 				questionThree = False
 			else:
 				questionThree = True
@@ -396,7 +390,7 @@ class SphinxLairPost(SphinxLair, View):
 				self.event.append('* The Sphinx nods with a smile on his face. "Very good." *')
 				self.event.append('* #2: What comes once in a minute, twice in a moment, but never in a thousand years? *')
 				del self.attempts[:]
-				sphinxPostprivateLog.append('Shadow')
+				self.sphinxPostprivateLog.append('Shadow')
 			elif (questionOne == False and 'shadow' not in request.session['action'] and len(self.attempts) == 0) or (questionOne == False and 'Shadow' not in request.session['action'] and len(self.attempts) == 0):
 				self.event.append('The sphinx stares back blankly. He is not amused by your incompetance.')
 				self.attempts.append('attempt')
@@ -410,7 +404,7 @@ class SphinxLairPost(SphinxLair, View):
 			elif (questionOne == True and questionTwo == False and 'letter m' in request.session['action']) or (questionOne == True and questionTwo == False and 'letter M' in request.session['action']) or (questionOne == True and questionTwo == False and request.session['action'] == 'm') or (questionOne == True and questionTwo == False and request.session['action'] == 'M'):
 				self.event.append('The Sphinx once again nods. He bares his lion teeth as he smiles toward you.')
 				self.event.append('* #3: I have one eye but cannot see. What am I? *')
-				sphinxPostprivateLog.append('M')
+				self.sphinxPostprivateLog.append('M')
 
 			elif (questionOne == True and questionTwo == False and ' m ' not in request.session['action'] and len(self.attempts) == 0) or (questionOne == True and questionTwo == False and ' M ' not in request.session['action'] and len(self.attempts) == 0):
 				self.event.append('The sphinx stares back blankly. He is not amused by your incompetance.')
@@ -425,7 +419,7 @@ class SphinxLairPost(SphinxLair, View):
 			elif (questionTwo == True and questionThree == False and 'needle' in request.session['action']) or (questionTwo == True and questionThree == False and 'Needle' in request.session['action']):
 				self.event.append('The sphinx lets out a roar before stepping aside.')
 				self.event.append('The door behind him opens revealing a Copper Key.')
-				sphinxPostprivateLog.append('Needle')
+				self.sphinxPostprivateLog.append('Needle')
 
 			elif (questionTwo == True and questionThree == False and 'needle' not in request.session['action'] and len(self.attempts) == 0) or (questionTwo == True and questionThree == False and 'Needle' not in request.session['action'] and len(self.attempts) == 0):
 				self.event.append('The Sphinx stares back blankly. He is not amused by your incompetance.')
@@ -438,12 +432,12 @@ class SphinxLairPost(SphinxLair, View):
 				# enter DEAD event
 
 			elif (questionThree == True and request.session['action'] == 'pick up key') or (questionThree == True and request.session['action'] == 'Pick up key') or (questionThree == True and request.session['action'] == 'grab key') or (questionThree == True and request.session['action'] == 'Grab key') or (questionThree == True and request.session['action'] == 'take key') or (questionThree == True and request.session['action'] == 'Take key') or (questionThree == True and request.session['action'] == 'pick up copper key') or (questionThree == True and request.session['action'] == 'Pick up copper key') or (questionThree == True and request.session['action'] == 'grab copper key') or (questionThree == True and request.session['action'] == 'Grab copper key') or (questionThree == True and request.session['action'] == 'take copper key') or (questionThree == True and request.session['action'] == 'Take copper key'):
-				if ('Copper Key' not in inventory):
+				if ('Copper Key' not in request.session['inventory']):
 					self.event.append('Copper key added to inventory.')
-					inventory.append('Copper Key')
+					request.session['inventory'].append('Copper Key')
 				else:
 					self.event.append('Nothing to pick up.')
-			elif ('Copper Key' in inventory and 'west' in request.session['action']) or ('Copper Key' in inventory and 'West' in request.session['action']):
+			elif ('Copper Key' in request.session['inventory'] and 'west' in request.session['action']) or ('Copper Key' in request.session['inventory'] and 'West' in request.session['action']):
 				self.event.append('You exit back towards the Open Room.')
 				return redirect('openRoom')
 			else:
@@ -461,11 +455,11 @@ class SpaceRoomGet(SpaceRoom, View):
 		self.event.append('As you enter you notice a window in front of you on the northern wall and a door on the western wall.')
 		self.event.append('Peering out the window, you see a large blue and green orb slowly getting smaller in the distance.')
 		self.event.append('Is that the Earth, you wonder.')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 
@@ -501,11 +495,11 @@ class CypherRoomGet(CypherRoom, View):
 		self.event.append('** You have shown cunning, this is true. Sadly, your life is nearly through. Lest you solve this anagram soon, the floor will open as you fall to your doom. **')
 		self.event.append('** Tries, 3 you shall attempt, before your kinsmen are made to lament. **')
 		self.event.append('Enter your guess:')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 class CypherRoomPost(CypherRoom, View):
@@ -560,11 +554,11 @@ class DragonsLairGet(DragonsLair, View):
 		self.event.append('** I was going to take her as a tassssty treat but when I heard you were aboard I decided it would be best to eat you both togetherrrrr. **')
 		self.event.append('Just then you notice in the corner of the room on the southern wall the princess is chained and gagged. She stares back at you in horror.')
 		self.event.append('* You must specify if you want to attack Kur\'s various body parts. (Head, chest, arms, legs) *')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 
@@ -661,11 +655,11 @@ class CockpitGet(Cockpit, View):
 		self.event.append('You and the princess sit perplexed as the metal castle barrels through space.')
 		self.event.append('You prepare yourself, knowing that this adventure has only just begun...')
 		self.event.append('** THE END **')
-		summary = {
+		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
-		log.append(summary)
+		log.append(request.session['summary'])
 		return render(request, 'game/index.html', story)
 
 
