@@ -68,12 +68,16 @@ class StartGet(Start, View):
 		self.event.append('BRAKOOMMMMMMMMM')
 		self.event.append('You hear a large crash up above as a winged behemoth swoops down and grabs up the princess.')
 		self.event.append('As it flies off it drops a scroll...')
+		self.event.append('testing')
+
 		request.session['summary'] = {
 				'location' : self.location,
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', {'log' : log, 'inventory' : inventory})
+
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class StartPost(StartGet, View):
 	def get(self, request):
@@ -115,7 +119,7 @@ class StartPost(StartGet, View):
 			self.event.append('Not Understood.')
 		print(request.session['inventory'])
 		# startPostprivateLog.append(request.session["action"])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class Mountains(object):
 	event = []
@@ -136,7 +140,8 @@ class MountainsGet(Mountains, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class MountainsPost(Mountains, View):
 	def get(self, request):
@@ -150,7 +155,7 @@ class MountainsPost(Mountains, View):
 			return redirect('start')
 		else:
 			self.event.append('Not Understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class ColdRoom(object):
 	event = []
@@ -168,7 +173,9 @@ class ColdRoomGet(ColdRoom, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class ColdRoomPost(ColdRoom, View):
 	def get(self, request):
@@ -197,8 +204,8 @@ class ColdRoomPost(ColdRoom, View):
 			self.event.append('You dont have the key.')
 		else:
 			self.event.append('Not Understood.')
-		print(request.session['inventory'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 
 class PrisonHall(object):
@@ -218,7 +225,8 @@ class PrisonHallGet(PrisonHall, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class PrisonHallPost(PrisonHall, View):
 	def get(self, request):
@@ -279,7 +287,7 @@ class PrisonHallPost(PrisonHall, View):
 			self.event.append('Nothing to pick up. Sword is already in inventory.')
 		else:
 			self.event.append('Not Understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class OpenRoom(object):
 	event = []
@@ -297,7 +305,8 @@ class OpenRoomGet(OpenRoom, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class OpenRoomPost(OpenRoom, View):
 	def get(self, request):
@@ -322,7 +331,7 @@ class OpenRoomPost(OpenRoom, View):
 			return redirect('spaceRoom')
 		else:
 			self.event.append('Not Understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class SphinxLair(object):
 	event = []
@@ -354,7 +363,8 @@ class SphinxLairGet(SphinxLair, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class SphinxLairPost(SphinxLair, View):
 	def get(self, request):
@@ -442,7 +452,7 @@ class SphinxLairPost(SphinxLair, View):
 				return redirect('openRoom')
 			else:
 				self.event.append('Not understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class SpaceRoom(object):
 	event = []
@@ -460,7 +470,8 @@ class SpaceRoomGet(SpaceRoom, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 
 class SpaceRoomPost(SpaceRoom, View):
@@ -476,7 +487,7 @@ class SpaceRoomPost(SpaceRoom, View):
 			return redirect('cypherRoom')
 		else:
 			self.event.append('Not understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class CypherRoom(object):
 	event = []
@@ -500,7 +511,8 @@ class CypherRoomGet(CypherRoom, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+
 
 class CypherRoomPost(CypherRoom, View):
 	def get(self, request):
@@ -527,7 +539,7 @@ class CypherRoomPost(CypherRoom, View):
 				# Death Event
 		else:
 			self.event.append('Not understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class DragonsLair(object):
 	event = []
@@ -559,7 +571,7 @@ class DragonsLairGet(DragonsLair, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 
 class DragonsLairPost(DragonsLair, View):
@@ -638,7 +650,7 @@ class DragonsLairPost(DragonsLair, View):
 			return redirect('cockpit')
 		else:
 			self.event.append('Not understood.')
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 class Cockpit(object):
 	event = []
@@ -660,7 +672,7 @@ class CockpitGet(Cockpit, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-		return render(request, 'game/index.html', story)
+		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 
 
