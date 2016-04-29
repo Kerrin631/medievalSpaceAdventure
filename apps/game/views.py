@@ -75,7 +75,6 @@ class StartGet(Start, View):
 				'event' : self.event,
 			}
 		log.append(request.session['summary'])
-
 		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
 
@@ -118,6 +117,7 @@ class StartPost(StartGet, View):
 		else:
 			self.event.append('Not Understood.')
 		print(request.session['inventory'])
+		inventory = request.session['inventory']
 		# startPostprivateLog.append(request.session["action"])
 		return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
 
