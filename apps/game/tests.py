@@ -17,12 +17,17 @@ class SimpleTest(TestCase):
         print "context=",response.context
         print "=" * 20
 
-        response = client.post('/startPost/', {'name': 'fred', 'passwd': 'secret'})
-        print "POST /startPost/","=" * 20
-        # print response
+        # http://54.191.235.170/postDirector/ = 302
+        # form data:
+        # csrfmiddlewaretoken:EYkGYGMztPhIXDOPjNrcsSOBLC0SZ1mK
+        # action:read scroll
+
+        response = client.post('/postDirector/', {'action': 'read scroll'})
+        print "POST /postDirector/","=" * 20
+        print "response=",response
         print "context=",response.context
         print "=" * 20
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
     # def test_coldroom(self):
     #     client = Client()

@@ -23,5 +23,5 @@ urlpatterns = patterns('',
   url(r'^cypherRoomPost/$', CypherRoomPost.as_view(), name='cypherRoomPost'),
   url(r'^dragonsLair/$', DragonsLairGet.as_view(), name='dragonsLair'),
   url(r'^dragonsLairPost/$', DragonsLairPost.as_view(), name='dragonsLairPost'),
-  url(r'^cockpit/$', CockpitGet.as_view(), name='cockpit'),
+  url(r'^cockpit/$', CockpitGet.as_view(), name='cockpit')
 )
