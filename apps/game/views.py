@@ -58,7 +58,8 @@ class StartGet(Start, View):
 	def get(self, request):
 		del self.event[:]
 		del self.startPostprivateLog[:]
-		del request.session['inventory'][:]
+		#del request.session['inventory'][:]
+		request.session['inventory'] = []
 		if ('dead' in didDie):
 			self.event.append('******* YOU HAVE FAILED YOUR PRINCESS. TRY AGAIN *******')
 		self.request.session['location'] = self.location
