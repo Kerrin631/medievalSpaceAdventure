@@ -1,0 +1,9 @@
+IP: http://54.191.235.170/
+
+- objects will appear in the inventory and then disappear
+
+- as I move through the story it will jump back and forth between my current position and some past position that I have already navigated past
+
+- It seems like the server is running multiple instances and ever type I submit a command, it jumps between the multiple instances and picks up at some other location
+
+- sometimes the story disappears entirely
