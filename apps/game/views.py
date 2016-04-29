@@ -8,9 +8,9 @@ from django.views.generic import View
 log = []
 inventory = []
 didDie = []
-story = {'log': log,
-         'inventory': inventory
-         }
+#story = {'log': log,
+#         'inventory': inventory
+#         }
 
 
 def postDirector(request):
@@ -369,7 +369,7 @@ class SphinxLairGet(SphinxLair, View):
             self.event.append('* #1: I live in light but die when it shines upon me. What am I?')
         request.session['summary'] = {'location': self.location,
                                       'event': self.event,
-                                     }
+                                      }
         log.append(request.session['summary'])
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
@@ -460,7 +460,7 @@ class SphinxLairPost(SphinxLair, View):
                 return redirect('openRoom')
             else:
                 self.event.append('Not understood.')
-        return render(request, 'game/index.html',context={'log': log, 'inventory': inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class SpaceRoom(object):
