@@ -290,7 +290,7 @@ class PrisonHallPost(PrisonHall, View):
             self.event.append('Nothing to pick up. Sword is already in inventory.')
         else:
             self.event.append('Not Understood.')
-        return render(request, 'game/index.html', context={'log': log,'inventory': inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class OpenRoom(object):
@@ -306,15 +306,15 @@ class OpenRoomGet(OpenRoom, View):
         self.event.append('You enter a large dark room. light is shining down from magical orbs on the ceiling')
         self.event.append('There is a door on the northern wall as well as the eastern wall.')
         self.event.append('The eastern door has a banner beside it.')
-        request.session['summary'] = {
-                'location' : self.location,
-                'event' : self.event,
-            }
+        request.session['summary'] = {'location': self.location,
+                                      'event': self.event,
+                                      }
         log.append(request.session['summary'])
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class OpenRoomPost(OpenRoom, View):
+
     def get(self, request):
         self.event.append('> ' + request.session["action"])
         if 'Copper Key' not in request.session['inventory']:
@@ -337,7 +337,8 @@ class OpenRoomPost(OpenRoom, View):
             return redirect('spaceRoom')
         else:
             self.event.append('Not Understood.')
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
+
 
 class SphinxLair(object):
     event = []
@@ -345,7 +346,9 @@ class SphinxLair(object):
     attempts = []
     sphinxPostprivateLog = []
 
+
 class SphinxLairGet(SphinxLair, View):
+
     def get(self, request):
         self.request.session['location'] = self.location
         del self.event[:]
@@ -364,12 +367,11 @@ class SphinxLairGet(SphinxLair, View):
             self.event.append('* Behold, I am the Sphinx, he says. In order to pass me, you must first answer these riddles, three... *')
             self.event.append('You nod slowly in understanding.')
             self.event.append('* #1: I live in light but die when it shines upon me. What am I?')
-        request.session['summary'] = {
-                'location' : self.location,
-                'event' : self.event,
-            }
+        request.session['summary'] = {'location': self.location,
+                                      'event': self.event,
+                                     }
         log.append(request.session['summary'])
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class SphinxLairPost(SphinxLair, View):
@@ -458,26 +460,27 @@ class SphinxLairPost(SphinxLair, View):
                 return redirect('openRoom')
             else:
                 self.event.append('Not understood.')
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html',context={'log': log, 'inventory': inventory})
+
 
 class SpaceRoom(object):
     event = []
     location = 'Space Room'
 
+
 class SpaceRoomGet(SpaceRoom, View):
+
     def get(self, request):
         del self.event[:]
         self.request.session['location'] = self.location
         self.event.append('As you enter you notice a window in front of you on the northern wall and a door on the western wall.')
         self.event.append('Peering out the window, you see a large blue and green orb slowly getting smaller in the distance.')
         self.event.append('Is that the Earth, you wonder.')
-        request.session['summary'] = {
-                'location' : self.location,
-                'event' : self.event,
-            }
+        request.session['summary'] = {'location': self.location,
+                                      'event': self.event,
+                                      }
         log.append(request.session['summary'])
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
-
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class SpaceRoomPost(SpaceRoom, View):
@@ -493,14 +496,17 @@ class SpaceRoomPost(SpaceRoom, View):
             return redirect('cypherRoom')
         else:
             self.event.append('Not understood.')
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
+
 
 class CypherRoom(object):
     event = []
     location = 'Cypher Room'
     attempts = []
 
+
 class CypherRoomGet(CypherRoom, View):
+
     def get(self, request):
         del self.event[:]
         del self.attempts[:]
@@ -512,15 +518,15 @@ class CypherRoomGet(CypherRoom, View):
         self.event.append('** You have shown cunning, this is true. Sadly, your life is nearly through. Lest you solve this anagram soon, the floor will open as you fall to your doom. **')
         self.event.append('** Tries, 3 you shall attempt, before your kinsmen are made to lament. **')
         self.event.append('Enter your guess:')
-        request.session['summary'] = {
-                'location' : self.location,
-                'event' : self.event,
-            }
+        request.session['summary'] = {'location': self.location,
+                                      'event': self.event,
+                                      }
         log.append(request.session['summary'])
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class CypherRoomPost(CypherRoom, View):
+
     def get(self, request):
         self.event.append('> ' + request.session["action"])
         guess = request.session['action'].upper()
@@ -545,7 +551,8 @@ class CypherRoomPost(CypherRoom, View):
                 # Death Event
         else:
             self.event.append('Not understood.')
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
+
 
 class DragonsLair(object):
     event = []
@@ -553,7 +560,9 @@ class DragonsLair(object):
     timesAttacked = []
     directHit = []
 
+
 class DragonsLairGet(DragonsLair, View):
+
     def get(self, request):
         del self.event[:]
         del self.timesAttacked[:]
@@ -572,15 +581,15 @@ class DragonsLairGet(DragonsLair, View):
         self.event.append('** I was going to take her as a tassssty treat but when I heard you were aboard I decided it would be best to eat you both togetherrrrr. **')
         self.event.append('Just then you notice in the corner of the room on the southern wall the princess is chained and gagged. She stares back at you in horror.')
         self.event.append('* You must specify if you want to attack Kur\'s various body parts. (Head, chest, arms, legs) *')
-        request.session['summary'] = {
-                'location' : self.location,
-                'event' : self.event,
-            }
+        request.session['summary'] = {'location': self.location,
+                                      'event': self.event,
+                                      }
         log.append(request.session['summary'])
-        return render(request, 'game/index.html',context= {'log':log,'inventory':inventory})
+        return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
 class DragonsLairPost(DragonsLair, View):
+
     def get(self, request):
         if (len(self.timesAttacked) < 3):
             vulnerable = False
