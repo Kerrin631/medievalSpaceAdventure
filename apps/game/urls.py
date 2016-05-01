@@ -1,8 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+# patterns,
 from . import views
-from views import StartGet, StartPost, MountainsGet, MountainsPost, ColdRoomGet, ColdRoomPost, PrisonHallGet, PrisonHallPost, OpenRoomGet, OpenRoomPost, SphinxLairGet, SphinxLairPost, SpaceRoomGet, SpaceRoomPost, CypherRoomGet, CypherRoomPost, DragonsLairGet, DragonsLairPost, CockpitGet
+from views import StartGet, StartPost, MountainsGet, MountainsPost, ColdRoomGet, \
+    ColdRoomPost, PrisonHallGet, PrisonHallPost, OpenRoomGet, OpenRoomPost, SphinxLairGet, \
+    SphinxLairPost, SpaceRoomGet, SpaceRoomPost, CypherRoomGet, CypherRoomPost, DragonsLairGet, \
+    DragonsLairPost, CockpitGet
 # for django 1.9 use from . import views
-urlpatterns = patterns('',
+urlpatterns = [
   url(r'^$', StartGet.as_view(), name='start'),
   url(r'^postDirector/$', views.postDirector, name='postDirector'),
   url(r'^newGame/$', views.newGame, name='newGame'),
@@ -24,4 +28,4 @@ urlpatterns = patterns('',
   url(r'^dragonsLair/$', DragonsLairGet.as_view(), name='dragonsLair'),
   url(r'^dragonsLairPost/$', DragonsLairPost.as_view(), name='dragonsLairPost'),
   url(r'^cockpit/$', CockpitGet.as_view(), name='cockpit')
-)
+]
