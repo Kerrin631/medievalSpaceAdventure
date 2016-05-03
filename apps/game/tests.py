@@ -2,7 +2,7 @@
 from django.test import Client
 from django.test import TestCase
 #from django.core.urlresolvers import resolve
-from pprint import pprint as pp
+#from pprint import pprint as pp
 
 
 class SimpleTest(TestCase):
@@ -21,7 +21,7 @@ class SimpleTest(TestCase):
 
     def test_refactoring_support(self):
         print "=" * 80
-        response = self.client.get('/newGame/',follow=True)
+        response = self.client.get('/newGame/', follow=True)
         self.print_response(response)
         print "redirect=", response.redirect_chain
         self.assertEqual(response.status_code, 200)
@@ -30,29 +30,72 @@ class SimpleTest(TestCase):
 
         print "postDirector", "=" * 40
         response = self.client.post('/postDirector/', {'action': 'pick up scroll'}, follow=True)
-        self.print_response(response,display=False)
+        self.print_response(response, display=False)
         print "context=", response.context
         self.assertRedirects(response, '/startPost/')
         print "inventory=", response.context['inventory']
         self.assertTrue("Scroll" in response.context['inventory'])
-        self.assertContains(response,"<li><b>Palace Chambers</b></li>",count=1)
-        self.assertContains(response,"Picked up scroll.",count=1)
+        self.assertContains(response, "<li><b>Palace Chambers</b></li>", count=1)
+        self.assertContains(response, "Picked up scroll.", count=1)
 
         print "postDirector2", "=" * 40
         response = self.client.post('/postDirector/', {'action': 'read scroll'}, follow=True)
-        self.print_response(response,display=True)
+        self.print_response(response, display=False)
         print "context=", response.context
         self.assertRedirects(response, '/startPost/')
         #print "inventory=", response.context['inventory']
-        # self.assertTrue("Scroll" in response.context['inventory'])
-        # self.assertContains(response,"<li><b>Palace Chambers</b></li>",count=1)
-        # self.assertContains(response,"Picked up scroll.",count=1)
-        print "ascroll=", response.context['ascroll']
+        self.assertTrue("Scroll" in response.context['inventory'])
+        self.assertContains(response, "<li><b>Palace Chambers</b></li>", count=1)
+        self.assertContains(response, ">Would you like to save the Princess? Y/N", count=1)
+        self.assertContains(response, "read scroll", count=1)
+
+        print "postDirector3", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'Y'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/mountains/')
+        print "inventory=", response.context['inventory']
+
+        # jump ot coldRoom
+        print "postDirector4", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'Y'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/coldRoom/')
+        print "inventory=", response.context['inventory']
+
+        print "postDirector5 -> coldRoomPost", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'grab key'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/coldRoomPost/')
+        self.assertTrue("Bronze Key" in response.context['inventory'])
+
+        print "inventory=", response.context['inventory']
+
+        print "postDirector6 -> coldRoomPost", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'use key'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/prisonHall/')
+        self.assertTrue("Bronze Key" in response.context['inventory'])
+        print "inventory=", response.context['inventory']
+
+        print "postDirector7 -> coldRoomPost", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'use western door'}, follow=True)
+        self.print_response(response, display=True)
+        self.assertRedirects(response, '/prisonHall/')
+        #self.assertTrue("Bronze Key" in response.context['inventory'])
+        print "inventory=", response.context['inventory']
+
+        return
+
+
+
+
+
+
 
         response = self.client.get('/mountains/')
         self.assertEqual(response.status_code, 200)
         self.print_response(response,display=True)
-        print "/mountains/ context=", response.context
+        #print "/mountains/ context=", response.context
         return
         
         return
