@@ -438,28 +438,34 @@ class OpenRoomGet(OpenRoom, View):
 class OpenRoomPost(OpenRoom, View):
 
     def get(self, request):
+        print "***OpenRoomtPost***", "path=", request.path, request.session["action"]
+
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
         #didDie = request.session.get('didDie', [])
         event = []
 
         event.append('> ' + request.session["action"])
-        if 'Copper Key' not in request.session['inventory']:
-            CopperKey = False
-        else:
-            CopperKey = True
+        CopperKey = 'Copper Key' in request.session['inventory']
+
+        print "INV=", request.session['inventory']
+        # if CopperKey:
+        #     import pdb;pdb.set_trace()
+
         if (request.session['action'] in ['look around', 'Look around']):
             event.append('There is a door on the northern wall as well as the eastern wall. There is a banner near the eastern door.')
-        elif (request.session['action'] in ['read banner', 'Read banner', 'look at banner', 'Look at banner', 'read the banner', 'Read the banner']):
+        elif (request.session['action'].lower() in ['read banner', 'look at banner', 'read the banner']):
             event.append('******** To reach the end you cannot rest. You must first pass this cunning test. Tread lightly to those that dare. Beyond this door lies the Sphinx Lair. *********')
-        elif (request.session['action'] == 'open door') or (request.session['action'] == 'Open door') or (request.session['action'] == 'use door') or (request.session['action'] == 'Use door') or (request.session['action'] == 'door') or (request.session['action'] == 'Door'):
+        elif (request.session['action'].lower() in ['open door', 'use door', 'door']):
             event.append('Please specify which door.')
         elif (request.session['action'] == 'open east door') or (request.session['action'] == 'Open east door') or (request.session['action'] == 'use east door') or (request.session['action'] == 'Use east door') or (request.session['action'] == 'east door') or (request.session['action'] == 'East door') or (request.session['action'] == 'open eastern door') or (request.session['action'] == 'Open eastern door') or (request.session['action'] == 'use eastern door') or (request.session['action'] == 'Use eastern door') or (request.session['action'] == 'eastern door') or (request.session['action'] == 'Eastern door'):
             event.append('You push open the door on the eastern wall.')
             return redirect('sphinxLair')
-        elif (not CopperKey and request.session['action'] in ['open north door', 'Open north door', 'use north door', 'Use north door', 'north door', 'north Door', 'open northern door', 'Open northern door', 'use northern door', 'Use northern door', 'Northern door', 'northern Door']):
+        elif (not CopperKey and request.session['action'].lower() in ['open north door', 'use north door', 'north door', 'open northern door', 'use northern door', 'Use northern door', 'Northern door', 'northern Door']):
             event.append('There seems to be a copper lock on this door.')
-        elif (CopperKey and request.session['action'] in ['open north door', 'Open north door', 'use north door', 'Use north door', 'north door', 'north Door', 'open northern door', 'Open northern door', 'use northern door', 'Use northern door', 'Northern door', 'northern Door']) or (CopperKey and 'key' in request.session['action']) or (CopperKey and 'Key' in request.session['action']):
+
+        elif (CopperKey and request.session['action'].lower() in ['open north door', 'use north door', 'north door', 'open northern door', 'use northern door', 'northern Door']):
+            # (CopperKey and 'key' in request.session['action']) or (CopperKey and 'Key' in request.session['action']):
             event.append('Northern Door unlocks')
             return redirect('spaceRoom')
         else:
@@ -542,7 +548,7 @@ class SphinxLairPost(SphinxLair, View):
                 event.append('The Sphinx roars.')
                 event.append('* You dare walk away from me? *')
                 event.append('You begrudgingly stop and turn to face him again.')
-            if (not questionOne and  request.session['action'].lower() in ['shadow', 'Shadow' ]):
+            if (not questionOne and request.session['action'].lower() in ['shadow', 'Shadow']):
                 event.append('* The Sphinx nods with a smile on his face. "Very good." *')
                 event.append('* #2: What comes once in a minute, twice in a moment, but never in a thousand years? *')
                 #del self.attempts[:]
@@ -609,18 +615,7 @@ class SphinxLairPost(SphinxLair, View):
                 return redirect('start')
                 # enter DEAD event
 
-            elif (questionThree and request.session['action'] in ['pick up key', 'Pick up key', 'grab key', 'Grab key', 'take key', 'Take key', 'pick up copper key', 'Pick up copper key', 'grab copper key', 'Grab copper key', 'take copper key', 'Take copper key']):
-                 # (questionThree and request.session['action'] == 'Pick up key') or \
-                 # (questionThree == True and request.session['action'] == 'grab key') or \
-                 # (questionThree == True and request.session['action'] == 'Grab key') or \
-                 # (questionThree == True and request.session['action'] == 'take key') or \
-                 # (questionThree == True and request.session['action'] == 'Take key') or \
-                 # (questionThree == True and request.session['action'] == 'pick up copper key') or \
-                 # (questionThree == True and request.session['action'] == 'Pick up copper key') or \
-                 # (questionThree == True and request.session['action'] == 'grab copper key') or \
-                 # (questionThree == True and request.session['action'] == 'Grab copper key') or \
-                 # (questionThree == True and request.session['action'] == 'take copper key') or \
-                 # (questionThree == True and request.session['action'] == 'Take copper key'):
+            elif (questionThree and request.session['action'].lower() in ['pick up key', 'grab key', 'take key', 'pick up copper key', 'grab copper key', 'take copper key']):
                 if ('Copper Key' not in request.session['inventory']):
                     event.append('Copper key added to inventory.')
                     request.session['inventory'].append('Copper Key')
@@ -633,7 +628,6 @@ class SphinxLairPost(SphinxLair, View):
                 event.append('Not understood.')
 
         request.session['attempts'] = attempts
-        #request.session['attempts'] = attempts
 
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
@@ -687,16 +681,16 @@ class SpaceRoomPost(SpaceRoom, View):
 
 
 class CypherRoom(object):
-    event = []
+    # event = []
     location = 'Cypher Room'
-    attempts = []
+    # attempts = []
 
 
 class CypherRoomGet(CypherRoom, View):
 
     def get(self, request):
-        del self.event[:]
-        del self.attempts[:]
+        #del self.event[:]
+        #del self.attempts[:]
         #???
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
@@ -733,7 +727,7 @@ class CypherRoomPost(CypherRoom, View):
         event.append('> ' + request.session["action"])
         guess = request.session['action'].upper()
 
-        if (request.session['action'] == 'look around') or (request.session['action'] == 'Look around'):
+        if (request.session['action'].lower() == 'look around'):
             event.append('There is a pedastile in front of you with 10 jewels. You should not focus on anything else.')
         elif (guess == 'OPENSESAME') or (guess == 'OPEN SESAME'):
             event.append('The crystals begin to glow. Suddenly the door in front of you slides open.')
@@ -793,7 +787,7 @@ class DragonsLairGet(DragonsLair, View):
         event.append('Just then you notice in the corner of the room on the southern wall the princess is chained and gagged. She stares back at you in horror.')
         event.append('* You must specify if you want to attack Kur\'s various body parts. (Head, chest, arms, legs) *')
         request.session['summary'] = {'location': self.location,
-                                      'event': self.event,
+                                      'event': event,
                                       }
         log.append(request.session['summary'])
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
@@ -807,7 +801,6 @@ class DragonsLairPost(DragonsLair, View):
         didDie = request.session.get('didDie', [])
         #event = []
         self.request.session['location'] = self.location
-
 
         event = request.session.get('event', [])
         request.session['event'] = event
@@ -829,19 +822,20 @@ class DragonsLairPost(DragonsLair, View):
             killed = True
         # if (vulnerable == True):
             # self.event.append('Kur\'s body begins to glow as he gathers a fire ball in his chest...')
+        print "Killed=", killed, "vuln=", vulnerable, "timesAttacked=", timesAttacked, "directHit", directHit
         event.append('> ' + request.session["action"])
         # attack = request.session['action'].upper()
 
-        if (request.session['action'].lower() == 'look around' and not killed):
+        if (not killed and request.session['action'].lower() == 'look around'):
             event.append('The dragon stares down at you in the center of the room. You see the princess chained to the wall in the corner. You cannot make out if there is anything else around. It is too dark.')
-        elif (request.session['action'].lower() == 'look around' and killed):
+        elif (killed and request.session['action'].lower() == 'look around'):
             event.append('Kur lies dead in the center of the large room. The fire in his gut illuminates a lone door on the northern side of the room.')
         elif ('princess' in request.session['action']):
             event.append('There is no time to deal with the princess. Kur is ready to attack.')
         elif (request.session['action'].lower() == 'head' and not vulnerable):
             event.append('Your sword merely scrapes against his scales causing no damage.')
             timesAttacked.append('attacked')
-            request.session['timesAttacked'] = timesAttacked 
+            request.session['timesAttacked'] = timesAttacked
             if (len(timesAttacked) == 3):
                 event.append('Kur\'s body begins to glow as he gathers a fire ball in his chest...')
         elif ('arm' in request.session['action'] and not vulnerable) or \
@@ -891,15 +885,21 @@ class DragonsLairPost(DragonsLair, View):
             request.session['didDie'] = didDie
             return redirect('start')
             # Death Event
-        elif ('chest' in request.session['action'] and vulnerable and len(self.directHit) == 0 and not killed) or \
-             ('Chest' in request.session['action'] and vulnerable and len(self.directHit) == 0 and not killed):
+        elif ('chest' in request.session['action'] and vulnerable and len(directHit) == 0 and not killed) or \
+             ('Chest' in request.session['action'] and vulnerable and len(directHit) == 0 and not killed):
             event.append('You slash Kur\'s newly undefended chest. He haphazardly releases his fireball in the wrong direction as he stumbles backward. He is hurt.')
             directHit.append('hit')
-            del self.timesAttacked[:]
-        elif ('chest' in request.session['action'] and vulnerable and len(self.directHit) == 1 and not killed) or \
-             ('Chest' in request.session['action'] and vulnerable and len(self.directHit) == 1 and not killed):
+            request.session['directHit'] = directHit
+
+            #del self.timesAttacked[:]
+            timesAttacked = []
+            request.session['timesAttacked'] = timesAttacked
+                        
+        elif ('chest' in request.session['action'] and vulnerable and len(directHit) == 1 and not killed) or \
+             ('Chest' in request.session['action'] and vulnerable and len(directHit) == 1 and not killed):
             event.append('You slash Kur\'s newly undefended chest. He haphazardly releases his fireball in the wrong direction as he stumbles backward. He is hurt.')
             directHit.append('hit')
+            request.session['directHit'] = directHit
             event.append('Kur falls to the ground as blood spurts from his chest!')
             event.append('You watch as his pupils slowly shink into nothingness.')
             event.append('Suddenly you remember...')
@@ -913,7 +913,7 @@ class DragonsLairPost(DragonsLair, View):
             request.session['log'] = log
             return redirect('cockpit')
         else:
-            self.event.append('Not understood.')
+            event.append('Not understood.')
 
         request.session['timesAttacked'] = timesAttacked
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})

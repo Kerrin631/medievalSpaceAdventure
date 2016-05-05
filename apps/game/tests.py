@@ -115,9 +115,9 @@ class SimpleTest(TestCase):
 
         print "postDirector12 -> sphinxLairPost", "=" * 40
         response = self.client.post('/postDirector/', {'action': 'shadow'}, follow=True)
-        self.print_response(response, display=True)
+        self.print_response(response, display=False)
         self.assertRedirects(response, '/sphinxLairPost/')
-        return
+
         print "postDirector13 -> sphinxLairPost", "=" * 40
         response = self.client.post('/postDirector/', {'action': 'M'}, follow=True)
         self.print_response(response, display=False)
@@ -128,7 +128,59 @@ class SimpleTest(TestCase):
         response = self.client.post('/postDirector/', {'action': 'Needle'}, follow=True)
         self.print_response(response, display=False)
         self.assertRedirects(response, '/sphinxLairPost/')
+        #print "context=", response.context
+
+        # grab key
+        print "postDirector15 -> sphinxLairPost", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'grab key'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/sphinxLairPost/')
+        #print "context=", response.context
+        print "inventory=", response.context['inventory']
+
+        print "postDirector16 -> openRoom", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'use western door'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/openRoom/')
         print "context=", response.context
+        print "inventory=", response.context['inventory']
+
+        print "postDirector17 -> openRoomPost", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'use northern door'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/spaceRoom/')
+        print "context=", response.context
+        print "inventory=", response.context['inventory']
+
+        print "postDirector18 spaceRoom -> cypherRoom", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'open west door'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/cypherRoom/')
+        #print "context=", response.context
+        #print "inventory=", response.context['inventory']
+
+        print "postDirector19 cypherRoomPost -> dragonsLair", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'opensesame'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/dragonsLair/')
+
+        print "postDirector19 dragonsLair -> dragonsLairPost", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'chest'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/dragonsLairPost/')
+
+        for i in range(1, 10):
+            print "postDirector19-",i,"dragonsLair -> dragonsLairPost", "=" * 40
+            response = self.client.post('/postDirector/', {'action': 'chest'}, follow=True)
+            self.print_response(response, display=False)
+            self.assertRedirects(response, '/dragonsLairPost/')
+
+        print "postDirector19-3 dragonsLairPost -> ?cockpit?", "=" * 40
+        response = self.client.post('/postDirector/', {'action': 'use north door'}, follow=True)
+        self.print_response(response, display=False)
+        self.assertRedirects(response, '/cockpit/')
+        # <b>** THE END **</b><
+        self.assertContains(response, "<b>** THE END **</b>", count=1)
 
         return
         #  Continue testing
