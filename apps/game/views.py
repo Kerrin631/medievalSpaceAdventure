@@ -2,11 +2,6 @@ from django.shortcuts import render, redirect
 from django.views.generic import View
 # from threading import Timer
 
-# Create your views here.
-# Declare Global variables
-
-# Remove all global variables
-
 #log = []
 #inventory = []
 #didDie = []
@@ -14,20 +9,8 @@ from django.views.generic import View
 #         'inventory': inventory
 #         }
 
-# incapsulate in request.session
-# request.session['log'] = []
-# request.session['inentory'] = []
-# request.session['didDie'] = []
-# value [] by default
-# local request.session['action']
-
-# Not used
-seqno = 0
-
 
 def postDirector(request):
-    print "***postDirector***path=", request.path
-
     request.session['action'] = request.POST['action']
     if request.session['location'] == 'Palace Chambers':
         return redirect('startPost')
@@ -61,19 +44,14 @@ def newGame(request):
 
 class Start(object):
     location = 'Palace Chambers'
-    startPostprivateLog = []
+    # startPostprivateLog = []
 
 
 class StartGet(Start, View):
 
     def get(self, request):
-        global seqno
-        #seqno = seqno + 1
-        #import pdb;pdb.set_trace()
 
-        print "***StartGet***", seqno, " path=", request.path
-
-        del self.startPostprivateLog[:]
+        # del self.startPostprivateLog[:]
         request.session['inventory'] = []
         event = []
         inventory = request.session.get('inventory', [])
@@ -100,32 +78,17 @@ class StartGet(Start, View):
 
 class StartPost(StartGet, View):
     def get(self, request):
-        global seqno
-        seqno = seqno + 1
-        print "***StartPost***", seqno, "path=", request.path
-
-        # get action,inventory  or []
         event = []
-        event = []
+        log = []
+        #log = request.session.get('log', [])
         #startPostprivateLog = []
         inventory = request.session.get('inventory', [])
-        #didDie = request.session.get('didDie',[])
-        #log = request.session.get('log',[])
-        log = []
         action = request.session.get('action', [])
-
-        # states: 'read scroll' -> Y('save princess') -> Y
         qscroll = request.session.get('qscroll', [])
         request.session['qscroll'] = qscroll
 
-        print "action=", action
-        print "inventory=", inventory
-        print "QSCROLL=", qscroll
-
         event.append('> ' + action)
-
         scroll = 'Scroll' in inventory
-
         if scroll and (action.lower() in ['pick up scroll', 'grab the scroll', 'grab scroll']):
             event.append('Nothing to pick up.')
         elif (not scroll and action in['pick up scroll', 'Pick up scroll', 'grab the scroll', 'Grab the scroll', 'grab scroll', 'Grab scroll']):
@@ -152,35 +115,27 @@ class StartPost(StartGet, View):
 
         elif (not scroll and action in ['read scroll', 'Read scroll']):
             event.append('You must first pick up scroll')
-        # Query 1
         elif (scroll and action in ['read scroll', 'Read scroll']):
             event.append('******** Your Princess now belongs in my castle... '
                          'Bring 2000 gold pieces to the castle North of the mountains for her return *********')
-
-            request.session['qscroll'].append("read scroll")
-            #startPostprivateLog.append('Read scroll')
             event.append('Would you like to save the Princess? Y/N')
+            request.session['qscroll'].append("read scroll")
 
-        #elif scrollRead:
         elif 'read scroll' in request.session['qscroll']:
             if request.session['action'] in ['Y', 'y', 'yes', 'Yes']:
                 return redirect('mountains')
             else:
-                #scrollRead = False
                 request.session['qscroll'] = []
         else:
             event.append('Not Understood.')
 
         request.session['action'] = ""
-
         ievent = {'location': self.location,
                   'event': event}
         request.session['event'] = ievent
         request.session['summary'] = {'location': self.location,
-                                      'event': event,
-                                      }
+                                      'event': event}
         log.append(request.session['summary'])
-        print "finish StartPost"
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
@@ -245,8 +200,6 @@ class MountainsPost(Mountains, View):
 
 class ColdRoom(object):
     location = 'Cold Room'
-    #event = []
-    #log = []
 
 
 class ColdRoomGet(ColdRoom, View):
@@ -254,20 +207,16 @@ class ColdRoomGet(ColdRoom, View):
     def get(self, request):
         inventory = request.session['inventory']
         log = request.session['log']
-        # didDie = request.session['didDie']
         event = []
-
         request.session['location'] = self.location
         event.append('You awaken in a prison cell.')
         event.append('Three walls are bare metal while the west wall is replaced with bars')
         event.append('Just beyond the bars you see an orc sleeping with a key hanging loosly from his side.')
         request.session['summary'] = {'location': self.location,
-                                      'event': event,
-                                      }
+                                      'event': event}
         log.append(request.session['summary'])
         request.session['log'] = log
         request.session['event'] = event
-
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
 
@@ -276,11 +225,9 @@ class ColdRoomPost(ColdRoom, View):
     def get(self, request):
         inventory = request.session['inventory']
         log = request.session['log']
-        #didDie = request.session['didDie']
         event = []
         request.session['coldroom'] = request.session.get('coldroom', [])
 
-        print "ACTION=", request.session['action']
         event.append('> ' + request.session["action"])
         bronzeKey = 'Bronze Key' in request.session['inventory']
 
@@ -319,19 +266,15 @@ class PrisonHall(object):
 class PrisonHallGet(PrisonHall, View):
 
     def get(self, request):
-        # del self.event[:]
-        # del self.hallPostprivateLog[:]
         event = []
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
-        #didDie = request.session['didDie']
 
         request.session['location'] = self.location
         event.append('You slowly creep out of your cell, making sure not to awaken the guard.')
         event.append('There is a door to the west and one to the north. The Orc Guard is still asleep.')
         request.session['summary'] = {'location': self.location,
-                                      'event': event,
-                                      }
+                                      'event': event}
         log.append(request.session['summary'])
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
@@ -344,23 +287,21 @@ class PrisonHallPost(PrisonHall, View):
         didDie = request.session.get('didDie', [])
         event = []
 
-        # static vars
         hallPostprivateLog = request.session.get('hallPostprivateLog', [])
         request.session['hallPostprivateLog'] = hallPostprivateLog
 
+        # print "action=", request.session["action"]
         event.append('> ' + request.session["action"])
 
         armed = 'Sword' in request.session['inventory']
         westOpened = 'west Opened' in hallPostprivateLog
         OrcDead = 'orcDead' in hallPostprivateLog
-        # print "armed=", armed, "westOpened=", westOpened, "OrcDead=", OrcDead, "HPL=", hallPostprivateLog
-        # print "action=", request.session["action"]
-        # if OrcDead:
-        #     import pdb; pdb.set_trace()
+
+        # import pdb; pdb.set_trace()
 
         if (request.session['action'] in ['look around', 'Look around']):
             event.append('There is a door to the west and one to the north. The Orc Guard is still asleep.')
-        elif (request.session['action'] in ['open door', 'Open door', 'use door', 'Use door', 'door', 'Door']):
+        elif (request.session['action'].lower() in ['open door', 'use door', 'door']):
             event.append('Please specify which door.')
         elif (not armed and request.session['action'] in ['open west door', 'Open west door', 'use west door', 'Use west door', 'west door', 'West door', 'open western door', 'Open western door', 'use western door', 'Use western door', 'western door', 'Western door']):
             event.append('You slowly open the western door, revealing a closet with your sword lying there.')
@@ -374,14 +315,14 @@ class PrisonHallPost(PrisonHall, View):
             request.session['hallPostprivateLog'] = hallPostprivateLog
             westOpened = True
             # stuff
-        elif (not OrcDead and request.session['action'] in ['open north door', 'Open north door', 'use north door', 'Use north door', 'north door', 'north Door', 'open northern door', 'Open northern door', 'use northern door', 'Use northern door', 'Northern door', 'northern Door']):
+        elif (not OrcDead and request.session['action'].lower() in ['open north door', 'use north door', 'north door', 'open northern door', 'use northern door', 'northern Door']):
             event.append('The rusted hinges scream as you pull the northern door open.')
             event.append('The Orc guard wakes up and charges towards you, furiously swinging his club.')
             event.append('The blow knocks you back against the wall. Everything goes dark as your body goes limp...')
             didDie.append('dead')
             return redirect('start')
             #did die event
-        elif (OrcDead and request.session['action'] in ['open north door', 'Open north door', 'use north door', 'Use north door', 'north door', 'north Door', 'open northern door', 'Open northern door', 'use northern door', 'Use northern door', 'Northern door', 'northern Door']):
+        elif (OrcDead and request.session['action'].lower() in ['open north door', 'use north door', 'north door', 'open northern door', 'use northern door', 'northern Door']):
             event.append('The rusted hinges scream as you pull the northern door open.')
             return redirect('openRoom')
         elif (armed and request.session['action'] in ['attack guard', 'Attack guard', 'kill guard', 'Kill guard', 'hit guard', 'Hit guard', 'attack orc', 'Attack orc', 'kill orc', 'Kill orc', 'hit orc', 'Hit orc']):
@@ -399,7 +340,6 @@ class PrisonHallPost(PrisonHall, View):
             return redirect('start')
             # enter DEAD event
         elif (westOpened and not armed and request.session['action'] in ['take sword', 'Take sword', 'grab sword', 'Grab sword', 'pick up sword', 'Pick up sword']):
-            print "SWORD-TAKEN"
             request.session['inventory'].append('Sword')
             event.append('Sword has been added to your inventory')
         elif (not westOpened and request.session['action'] in ['take sword', 'Take sword', 'grab sword', 'Grab sword', 'pick up sword', 'Pick up sword']):
@@ -421,7 +361,6 @@ class OpenRoomGet(OpenRoom, View):
     def get(self, request):
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
-        #didDie = request.session.get('didDie', [])
         event = []
 
         self.request.session['location'] = self.location
@@ -429,8 +368,7 @@ class OpenRoomGet(OpenRoom, View):
         event.append('There is a door on the northern wall as well as the eastern wall.')
         event.append('The eastern door has a banner beside it.')
         request.session['summary'] = {'location': self.location,
-                                      'event': event,
-                                      }
+                                      'event': event}
         log.append(request.session['summary'])
         return render(request, 'game/index.html', context={'log': log, 'inventory': inventory})
 
@@ -438,19 +376,12 @@ class OpenRoomGet(OpenRoom, View):
 class OpenRoomPost(OpenRoom, View):
 
     def get(self, request):
-        print "***OpenRoomtPost***", "path=", request.path, request.session["action"]
-
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
-        #didDie = request.session.get('didDie', [])
         event = []
 
         event.append('> ' + request.session["action"])
         CopperKey = 'Copper Key' in request.session['inventory']
-
-        print "INV=", request.session['inventory']
-        # if CopperKey:
-        #     import pdb;pdb.set_trace()
 
         if (request.session['action'] in ['look around', 'Look around']):
             event.append('There is a door on the northern wall as well as the eastern wall. There is a banner near the eastern door.')
@@ -751,8 +682,8 @@ class CypherRoomPost(CypherRoom, View):
 
 
 class DragonsLair(object):
-    # event = []
     location = 'Dragons Lair'
+    # event = []
     # timesAttacked = []
     # directHit = []
 
@@ -760,17 +691,10 @@ class DragonsLair(object):
 class DragonsLairGet(DragonsLair, View):
 
     def get(self, request):
-        #del self.event[:]
-        #del self.timesAttacked[:]
-        #del self.directHit[:]
-        #???
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
-        #didDie = request.session.get('didDie', [])
         event = []
         self.request.session['location'] = self.location
-
-        event = []
 
         self.request.session['location'] = self.location
         event.append('You enter a large dark room. with oddly high ceilings')
@@ -799,9 +723,9 @@ class DragonsLairPost(DragonsLair, View):
         inventory = request.session.get('inventory', [])
         log = request.session.get('log', [])
         didDie = request.session.get('didDie', [])
-        #event = []
         self.request.session['location'] = self.location
 
+        #event = []
         event = request.session.get('event', [])
         request.session['event'] = event
 
@@ -822,7 +746,7 @@ class DragonsLairPost(DragonsLair, View):
             killed = True
         # if (vulnerable == True):
             # self.event.append('Kur\'s body begins to glow as he gathers a fire ball in his chest...')
-        print "Killed=", killed, "vuln=", vulnerable, "timesAttacked=", timesAttacked, "directHit", directHit
+
         event.append('> ' + request.session["action"])
         # attack = request.session['action'].upper()
 
@@ -894,7 +818,7 @@ class DragonsLairPost(DragonsLair, View):
             #del self.timesAttacked[:]
             timesAttacked = []
             request.session['timesAttacked'] = timesAttacked
-                        
+
         elif ('chest' in request.session['action'] and vulnerable and len(directHit) == 1 and not killed) or \
              ('Chest' in request.session['action'] and vulnerable and len(directHit) == 1 and not killed):
             event.append('You slash Kur\'s newly undefended chest. He haphazardly releases his fireball in the wrong direction as he stumbles backward. He is hurt.')
